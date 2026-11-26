@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sonificación de Datos — Entrega 4.1</title>
+<link rel="stylesheet" href="https://portafolio.insta3d.cl/fonts/fonts.css">
+<style>
+:root{
+  --paper:#e7dfce;--paper-2:#ded4bf;--cream:#f1ebdc;--ink:#1b1a13;--muted:#6b6450;
+  --accent:#1a7a2e;--alert:#d4500f;
+  --disp:'Barlow Condensed','Arial Narrow',Impact,sans-serif;
+  --mono:'Space Mono',ui-monospace,monospace;
+  --sans:'Barlow',system-ui,sans-serif;
+}
+/* tema claro fijo */
+*{box-sizing:border-box;}
+html,body{overflow-x:hidden;max-width:100%;}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.5;}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;opacity:.05;mix-blend-mode:multiply;z-index:90;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+.wrap{max-width:1000px;margin:0 auto;padding:18px 18px 70px;}
+a{color:inherit;}
+
+.nav{display:flex;align-items:center;justify-content:space-between;border:2px solid var(--ink);background:var(--paper-2);padding:12px 16px;box-shadow:5px 5px 0 var(--ink);margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+.nav .name{font-family:var(--disp);font-weight:700;font-size:22px;text-transform:uppercase;}
+.nav .back{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;}
+.nav .back:hover{color:var(--accent);}
+
+.head{border:2px solid var(--ink);background:var(--cream);padding:24px 24px;box-shadow:6px 6px 0 var(--ink);margin-bottom:18px;}
+.eye{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--accent);text-transform:uppercase;margin-bottom:8px;}
+.head h1{font-family:var(--disp);font-weight:700;font-size:clamp(26px,5vw,44px);text-transform:uppercase;line-height:1;margin:0 0 6px;}
+.head .meta{font-family:var(--mono);font-size:12px;color:var(--muted);}
+
+.app{display:grid;grid-template-columns:1fr .8fr;gap:16px;align-items:start;}
+@media(max-width:820px){.app{grid-template-columns:1fr;}}
+
+.panel{border:2px solid var(--ink);background:var(--cream);box-shadow:5px 5px 0 var(--ink);padding:16px;}
+.panel h2{font-family:var(--disp);text-transform:uppercase;font-size:18px;margin:0 0 12px;}
+.fila{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
+.fila label{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);}
+.fila .val{color:var(--accent);}
+select,input[type=range]{width:100%;}
+select{background:var(--paper);color:var(--ink);border:2px solid var(--ink);border-radius:0;padding:7px;font-family:var(--mono);font-size:13px;}
+.botones{display:flex;gap:8px;margin-top:6px;}
+button{flex:1;padding:10px;border:2px solid var(--ink);background:var(--paper-2);color:var(--ink);cursor:pointer;font-family:var(--mono);font-size:13px;text-transform:uppercase;box-shadow:3px 3px 0 var(--ink);}
+button:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--ink);}
+button.play{background:var(--accent);color:#fff;border-color:var(--accent);}
+button.play.on{background:var(--alert);border-color:var(--alert);}
+.file{font-family:var(--mono);font-size:11px;}
+
+.tablewrap{overflow:auto;max-height:360px;border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink);}
+table{width:100%;border-collapse:collapse;background:var(--cream);font-size:13px;}
+th,td{border:1px solid var(--muted);padding:6px 9px;text-align:left;white-space:nowrap;}
+th{font-family:var(--disp);text-transform:uppercase;font-size:14px;background:var(--paper-2);position:sticky;top:0;}
+tr.now td{background:var(--accent);color:#fff;}
+
+.band{margin:26px 0 12px;display:flex;align-items:center;gap:12px;}
+.band h2{font-family:var(--disp);font-weight:700;font-size:20px;text-transform:uppercase;margin:0;}
+.band .ln{flex:1;height:2px;background:var(--ink);opacity:.25;}
+.map th{background:var(--ink);color:var(--paper);}
+.foot{margin-top:34px;text-align:center;font-family:var(--mono);font-size:10.5px;color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="nav">
+    <div class="name">LF<span style="color:var(--accent)">·</span>Benítez</div>
+    <a class="back" href="https://portafolio.insta3d.cl/sonificacion/">← Ficha en el portafolio</a>
+  </div>
+
+  <div class="head">
+    <div class="eye">// ENTREGA 4 · EJERCICIO 4.1</div>
+    <h1>Sonificación de Datos</h1>
+    <div class="meta">Un dataset → una melodía · variable numérica = altura · variable categórica = timbre</div>
+  </div>
+
+  <div class="band"><h2>Pieza oficial (TwoTone)</h2><div class="ln"></div></div>
+  <div class="panel">
+    <p style="margin:0 0 12px;">Sonificación de la evolución del <b>CO₂</b> y la <b>temperatura global</b>, realizada en <b>TwoTone</b> con datos de <a href="https://datahub.io/core/global-temp" target="_blank" rel="noopener" style="color:var(--accent)">datahub.io</a>. Dos variables suenan en paralelo a lo largo del tiempo.</p>
+    <audio controls preload="metadata" style="width:100%;margin-bottom:14px;" src="twotone-co2-temperatura.mp3"></audio>
+    <table class="map" style="margin-bottom:12px;">
+      <tr><th>Variable (dato)</th><th>Instrumento</th><th>Parámetro sonoro</th></tr>
+      <tr><td>Δ CO₂ anual (Gt)</td><td>Church Organ</td><td>Altura de nota (valor alto → más agudo)</td></tr>
+      <tr><td>Δ Temperatura anual (°C)</td><td>Violin</td><td>Altura de nota</td></tr>
+      <tr><td>Año</td><td>—</td><td>Tiempo (avance de la pieza)</td></tr>
+    </table>
+    <a class="cta" href="dataset-co2-temperatura.xlsx" download>Descargar dataset (XLSX) →</a>
+  </div>
+
+  <div class="band"><h2>Explorador interactivo</h2><div class="ln"></div></div>
+  <p style="font-family:var(--mono);font-size:12px;color:var(--muted);margin:0 0 14px;">Prueba tú mismo: carga un dataset y ajusta el mapeo en vivo.</p>
+
+  <div class="app">
+    <div class="panel">
+      <h2>Datos</h2>
+      <div class="fila">
+        <label>Dataset</label>
+        <select id="dataset">
+          <option value="stgo">Temperatura media mensual · Santiago</option>
+          <option value="csv">— cargar mi CSV —</option>
+        </select>
+      </div>
+      <div class="fila" id="filaCsv" hidden>
+        <label>Archivo CSV (primera fila = encabezados)</label>
+        <input type="file" id="csv" class="file" accept=".csv,text/csv">
+      </div>
+
+      <h2 style="margin-top:16px;">Mapeo</h2>
+      <div class="fila">
+        <label>Altura de la nota ← variable <b>numérica</b></label>
+        <select id="colNum"></select>
+      </div>
+      <div class="fila">
+        <label>Timbre (instrumento) ← variable <b>categórica</b></label>
+        <select id="colCat"></select>
+      </div>
+      <div class="fila">
+        <label>Escala</label>
+        <select id="escala">
+          <option value="pentaMayor" selected>Pentatónica mayor</option>
+          <option value="mayor">Mayor</option>
+          <option value="menor">Menor</option>
+          <option value="pentaMenor">Pentatónica menor</option>
+          <option value="cromatica">Cromática</option>
+        </select>
+      </div>
+      <div class="fila">
+        <label>Octavas de rango <span class="val" id="vRango">3</span></label>
+        <input type="range" id="rango" min="1" max="5" value="3">
+      </div>
+      <div class="fila">
+        <label>Velocidad (notas/seg) <span class="val" id="vVel">3</span></label>
+        <input type="range" id="vel" min="1" max="10" value="3">
+      </div>
+      <div class="botones">
+        <button id="play" class="play">▶ Reproducir</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="tablewrap"><table id="tabla"></table></div>
+    </div>
+  </div>
+
+  <div class="band"><h2>Tabla de mapeo (variable → parámetro musical)</h2><div class="ln"></div></div>
+  <div class="tablewrap"><table class="map" id="mapa"></table></div>
+
+  <div class="band"><h2>Justificación</h2><div class="ln"></div></div>
+  <div class="panel">
+    <p style="margin:0 0 8px;">El orden de las filas define el <b>tiempo</b> (la melodía avanza fila a fila). La variable <b>numérica</b> elegida se normaliza a su rango y se cuantiza a la <b>escala</b>, de modo que valores altos suenan más agudos — así el oído percibe la tendencia de los datos sin ver el gráfico. La variable <b>categórica</b> asigna un <b>timbre</b> distinto a cada categoría, separando grupos por color sonoro.</p>
+    <p style="margin:0;">Se cuantiza a una escala musical para que el resultado sea audible y no disonante, priorizando la <b>percepción de patrones</b> por sobre la fidelidad numérica exacta.</p>
+  </div>
+
+  <div class="foot">© 2026 · Luis-Felipe Benítez · Taller de Interfaces UAI · Entrega 4.1</div>
+</div>
+
+<script>
+const ESCALAS={mayor:[0,2,4,5,7,9,11],menor:[0,2,3,5,7,8,10],pentaMayor:[0,2,4,7,9],pentaMenor:[0,3,5,7,10],cromatica:[0,1,2,3,4,5,6,7,8,9,10,11]};
+const ONDAS=['sine','triangle','square','sawtooth'];
+const ONDA_NOM={sine:'Senoidal',triangle:'Triangular',square:'Cuadrada',sawtooth:'Sierra'};
+
+const STGO=`Mes,TempMedia,Estacion
+Ene,20.9,Verano
+Feb,20.0,Verano
+Mar,17.8,Otoño
+Abr,14.5,Otoño
+May,11.3,Otoño
+Jun,8.9,Invierno
+Jul,8.4,Invierno
+Ago,9.9,Invierno
+Sep,11.6,Primavera
+Oct,14.0,Primavera
+Nov,16.7,Primavera
+Dic,19.4,Verano`;
+
+const $=id=>document.getElementById(id);
+let cols=[], rows=[], numCols=[], catCols=[], catMap={};
+let ctx, tocando=false, timer=null, idx=0, tSig=0;
+
+function parseCSV(txt){
+  const lineas=txt.trim().split(/\r?\n/);
+  const cab=lineas[0].split(',').map(s=>s.trim());
+  const data=lineas.slice(1).map(l=>{
+    const c=l.split(',').map(s=>s.trim());
+    const o={}; cab.forEach((h,i)=>o[h]=c[i]); return o;
+  });
+  return {cab,data};
+}
+function esNumerica(col){ return rows.every(r=>r[col]!=='' && !isNaN(parseFloat(r[col]))); }
+
+function cargar(txt){
+  const {cab,data}=parseCSV(txt);
+  cols=cab; rows=data;
+  numCols=cols.filter(esNumerica);
+  catCols=cols.filter(c=>!numCols.includes(c));
+  $('colNum').innerHTML=numCols.map(c=>`<option>${c}</option>`).join('') || '<option>(sin numéricas)</option>';
+  $('colCat').innerHTML=catCols.map(c=>`<option>${c}</option>`).join('') || '<option>(sin categóricas)</option>';
+  pintarTabla(); pintarMapa();
+}
+
+function pintarTabla(){
+  const t=$('tabla');
+  t.innerHTML='<tr>'+cols.map(c=>`<th>${c}</th>`).join('')+'</tr>'+
+    rows.map((r,i)=>`<tr data-i="${i}">`+cols.map(c=>`<td>${r[c]}</td>`).join('')+'</tr>').join('');
+}
+
+function timbres(){
+  const cat=$('colCat').value;
+  const distintas=[...new Set(rows.map(r=>r[cat]))];
+  catMap={}; distintas.forEach((v,i)=>catMap[v]=ONDAS[i%ONDAS.length]);
+  return {cat,distintas};
+}
+
+function pintarMapa(){
+  const num=$('colNum').value; const {cat,distintas}=timbres();
+  let html='<tr><th>Variable</th><th>Tipo</th><th>Parámetro sonoro</th></tr>';
+  html+=`<tr><td>(orden de filas)</td><td>secuencia</td><td>Tiempo — avance de la melodía</td></tr>`;
+  html+=`<tr><td>${num}</td><td>numérica</td><td>Altura de la nota (cuantizada a la escala)</td></tr>`;
+  html+=`<tr><td>${cat}</td><td>categórica</td><td>Timbre / instrumento</td></tr>`;
+  distintas.forEach(v=>{ html+=`<tr><td style="padding-left:22px">↳ ${v}</td><td></td><td>${ONDA_NOM[catMap[v]]}</td></tr>`; });
+  $('mapa').innerHTML=html;
+}
+
+function audio(){ if(!ctx) ctx=new (window.AudioContext||window.webkitAudioContext)(); if(ctx.state==='suspended')ctx.resume(); return ctx; }
+
+function freqDe(v,min,max){
+  const esc=ESCALAS[$('escala').value]; const rango=+$('rango').value;
+  const total=esc.length*rango;
+  let n = max>min ? (v-min)/(max-min) : 0.5;
+  let i=Math.floor(n*(total-1));
+  const paso=esc[i%esc.length], oct=Math.floor(i/esc.length);
+  const midi=12*(3+1)+paso+12*oct;   // base octava 3
+  return 440*Math.pow(2,(midi-69)/12);
+}
+
+function nota(row,t){
+  const num=$('colNum').value, cat=$('colCat').value;
+  const vals=rows.map(r=>parseFloat(r[num]));
+  const min=Math.min(...vals), max=Math.max(...vals);
+  const f=freqDe(parseFloat(row[num]),min,max);
+  const c=audio();
+  const o=c.createOscillator(); o.type=catMap[row[cat]]||'sine'; o.frequency.value=f;
+  const g=c.createGain(); const dur=(1/+$('vel').value)*1.4;
+  g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(0.28,t+0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(g).connect(c.destination); o.start(t); o.stop(t+dur+0.02);
+}
+
+function planificar(){
+  const c=audio(); const sec=1/+$('vel').value;
+  while(tSig<c.currentTime+0.15){
+    if(idx>=rows.length){ detener(); return; }
+    nota(rows[idx],tSig);
+    marcar(idx);
+    idx++; tSig+=sec;
+  }
+}
+function marcar(i){
+  document.querySelectorAll('#tabla tr').forEach(tr=>tr.classList.remove('now'));
+  const tr=document.querySelector(`#tabla tr[data-i="${i}"]`);
+  if(tr){ tr.classList.add('now'); tr.scrollIntoView({block:'nearest'}); }
+}
+function reproducir(){
+  timbres(); pintarMapa();
+  const c=audio(); tocando=true; idx=0; tSig=c.currentTime+0.1;
+  timer=setInterval(planificar,25);
+  $('play').textContent='⏹ Detener'; $('play').classList.add('on');
+}
+function detener(){
+  tocando=false; clearInterval(timer);
+  $('play').textContent='▶ Reproducir'; $('play').classList.remove('on');
+  document.querySelectorAll('#tabla tr').forEach(tr=>tr.classList.remove('now'));
+}
+
+$('play').addEventListener('click',()=>tocando?detener():reproducir());
+['colNum','colCat','escala','rango','vel'].forEach(id=>$(id).addEventListener('change',pintarMapa));
+$('rango').addEventListener('input',()=>$('vRango').textContent=$('rango').value);
+$('vel').addEventListener('input',()=>$('vVel').textContent=$('vel').value);
+$('dataset').addEventListener('change',()=>{
+  const csv=$('dataset').value==='csv'; $('filaCsv').hidden=!csv;
+  if(!csv) cargar(STGO);
+});
+$('csv').addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f)return;
+  const r=new FileReader(); r.onload=()=>cargar(r.result); r.readAsText(f);
+});
+
+cargar(STGO);
+</script>
+</body>
+</html>
