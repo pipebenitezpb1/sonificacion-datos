@@ -1,7 +1,7 @@
 # Sonificación de Datos · CO₂ y temperatura
 
 **Unidad 1 · Interfaces Sonoras · Entrega 4.1** · Taller de Diseño de Interfaces, Universidad Adolfo Ibáñez · 2026
-Autor: Luis-Felipe Benítez · Ficha: https://portafolio.insta3d.cl/sonificacion/ · Entrega 4.2 (imagen): https://github.com/pipebenitezpb1/sonificador-imagenes
+Autor: Luis-Felipe Benitez · Ficha: https://portafolio.insta3d.cl/sonificacion/ · Entrega 4.2 (imagen): https://github.com/pipebenitezpb1/sonificador-imagenes
 
 ## Objetivos
 - Traducir un conjunto de datos a una melodía que permita **oír su tendencia** sin ver un gráfico.
